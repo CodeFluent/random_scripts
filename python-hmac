@@ -1,0 +1,68 @@
+"""
+From here: https://gist.github.com/Averroes/3bd96ae28cae30c1eefc 
+
+Just typing the example and seeing what we can do with hmac.
+Python manual (https://docs.python.org/3/library/pickle.html#module-pickle) 
+mentions using pickle with only trusted data and recommends signing the data 
+with hmac to verify integrity. Could be useful in SIEM or crypto applications. 
+
+"""
+
+import hashlib 
+import hmac 
+
+import pickle
+from io import BytesIO # used to emulate a socket
+
+def make_digest(message):
+    "Makes the output of the hash function (digest) using your key."
+    hash = hmac.new(b'muh-secret-key',
+                     message,
+                     hashlib.sha1)
+    return hash.hexdigest()
+
+# def picklethis()
+
+class SIEMObject(object):
+    "An object to store and retrieve pickle data with hash signs"
+    def __init__(self, name):
+        self.name = name
+    def __str__(self):
+        return self.name
+
+# prepare a simulated server socket
+out_s = BytesIO()
+
+# Prepare the pickled object
+message_store = SIEMObject('hey just some data here to store and pickle')
+pickled_data = pickle.dumps(message_store) # dumps() here returns a bytes object
+digest = make_digest(pickled_data) # pickled data representation is signed
+header = '%s %s' % (digest, len(pickled_data))
+print("WRITING:", header)
+
+# Write to StringIO
+out_s.write(header + "\n")
+out_s.write(pickled_data)
+
+# prepare a simulated client socket
+in_s = BytesIO(out_s.getvalue())
+
+# Read data
+while True: 
+    first_line = in_s.readline()
+    if not first_line: 
+        break
+    incoming_digest, incoming_length = first_line.split(' ')
+    incoming_length = int(incoming_length)
+    print("\nREAD:", incoming_digest, incoming_length)
+
+    incoming_pickled_data = in_s.read(incoming_length)
+
+    actual_digest = make_digest(incoming_pickled_data)
+    print("\nACTUAL:", actual_digest)
+
+    if incoming_digest != actual_digest:
+        print("WARNING! Data corruption. Digests do not match.")
+    else:
+        obj = pickled_data.loads(incoming_pickled_data)
+        print("OK! Data contained: ", obj)
