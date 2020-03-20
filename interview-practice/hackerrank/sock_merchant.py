@@ -2,12 +2,9 @@
 #!/bin/python3
 
 import math
-import os
-import random
-import re
-import sys
 
-# Complete the sockMerchant function below.
+
+# solved with two loops
 def sockMerchant(n, ar):
     
     hist = {} # histogram of all colors 
@@ -23,13 +20,20 @@ def sockMerchant(n, ar):
     # get the number of pairs
     num_of_pairs = 0
     for color, freq in hist.items():
-        if (freq > 1):
-            if (freq % 2 == 0):
+        if (freq > 1): 
+            if (freq % 2 == 0): # didn't need the odd/even split since / returns integer division
                 num_of_pairs += freq / 2
             else:
                 num_of_pairs += (freq - 1) / 2
     
     return int(num_of_pairs)
+
+
+# solve with hash table
+def sockMerchantHash(n, ar):
+    return None 
+
+
 
 
 
