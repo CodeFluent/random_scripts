@@ -1,5 +1,6 @@
 """
-From here: https://gist.github.com/Averroes/3bd96ae28cae30c1eefc 
+From here: https://gist.github.com/Averroes/3bd96ae28cae30c1eefc
+Addtional help: https://bip.weizmann.ac.il/course/python/PyMOTW/PyMOTW/docs/hmac/index.html
 
 Just typing the example and seeing what we can do with hmac.
 Python manual (https://docs.python.org/3/library/pickle.html#module-pickle) 
